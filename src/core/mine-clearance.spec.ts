@@ -79,6 +79,6 @@ describe("mineClearance", () => {
     mineClearance.randomMap();
     const emptyCount = getEmptyCountBymap(mineClearance.map);
     const mineCount = getMineCountBymap(mineClearance.map);
-    
+    expect(emptyCount + mineCount).to.eq(100);
   });
 });
