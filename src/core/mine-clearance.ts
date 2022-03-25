@@ -87,6 +87,7 @@ export class MineClearance {
       const r = Math.floor(indexOfMine / col);
       const c = indexOfMine % col;
       this.map[r][c].getValue().value = -1; // mean mine
+      this.increaseValueAroundMine(r, c);
     }
   }
   public isMine(row: number, col: number) {

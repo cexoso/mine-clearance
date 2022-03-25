@@ -1,15 +1,5 @@
-import { expect } from "chai";
+import { assert, expect } from "chai";
 import { MineClearance } from "./mine-clearance";
-const getEmptyCountBymap = (map: MineClearance["map"]) => {
-  let mineCount = 0;
-  for (let rows of map) {
-    for (let cell of rows) {
-      mineCount += cell.getValue().value === 0 ? 1 : 0;
-    }
-  }
-  return mineCount;
-};
-
 const getMineCountBymap = (map: MineClearance["map"]) => {
   let mineCount = 0;
   for (let rows of map) {
@@ -103,6 +93,61 @@ describe("mineClearance", () => {
       expect(snapshot[0]).deep.eq([-1, 3, 1], "第一行");
       expect(snapshot[1]).deep.eq([-1, -1, 1], "第二行");
       expect(snapshot[2]).deep.eq([2, 2, 1], "第三行");
+    });
+  });
+  describe("randomMap should generate a map correctly", () => {
+    const mineClearance = new MineClearance({
+      row: 10,
+      col: 6,
+      mineCount: 9,
+    });
+    mineClearance.randomMap();
+    it("size correct", () => {
+      const snapshot = mineClearance.getSnapshot();
+      expect(snapshot).lengthOf(10);
+      expect(snapshot[0]).lengthOf(6);
+    });
+    it("mine count correct", () => {
+      expect(getMineCountBymap(mineClearance.map)).eq(9);
+    });
+    it("logic correct value of the cell is count of mine around cell", () => {
+      const snapshot = mineClearance.getSnapshot();
+      const getValue = (row: number, col: number) => {
+        const rowData = snapshot[row];
+        if (rowData === undefined) {
+          return 0;
+        }
+        const cell = rowData[col];
+        if (cell === undefined) {
+          return 0;
+        }
+        return cell === -1 ? 1 : 0;
+      };
+      for (let row = 0; row < snapshot.length; row++) {
+        const rowSnapshot = snapshot[row];
+        for (let col = 0; col < rowSnapshot.length; col++) {
+          const cell = rowSnapshot[col];
+          if (cell !== -1) {
+            const value = [
+              [row - 1, col - 1],
+              [row - 1, col],
+              [row - 1, col + 1],
+              [row, col - 1],
+              [row, col + 1],
+              [row + 1, col - 1],
+              [row + 1, col],
+              [row + 1, col + 1],
+            ].reduce((acc, [r, c]) => acc + getValue(r, c), 0);
+            assert(
+              value === cell,
+              `[${row},${col}] expect ${value} count of mine but get ${cell}\n${snapshot
+                .map((row) => row.join("\t"))
+                .join("\n")}
+              `
+            );
+          }
+        }
+      }
     });
   });
 });
