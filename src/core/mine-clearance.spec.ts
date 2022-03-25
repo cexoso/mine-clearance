@@ -74,11 +74,37 @@ describe("mineClearance", () => {
     });
   });
 
-  describe("randomMap", () => {
-    const mineClearance = new MineClearance({ row: 10, col: 10 });
-    mineClearance.randomMap();
-    const emptyCount = getEmptyCountBymap(mineClearance.map);
-    const mineCount = getMineCountBymap(mineClearance.map);
-    expect(emptyCount + mineCount).to.eq(100);
+  describe("setMine", () => {
+    it("setMine can just only set mine data", () => {
+      const mineClearance = new MineClearance({
+        row: 10,
+        col: 10,
+        mineCount: -1,
+      });
+      (mineClearance as any).createEmptyMap();
+      expect(mineClearance.isMine(1, 1)).not.eq(true, "should not be mine");
+      mineClearance.setMine([
+        { row: 1, col: 1 },
+        { row: 5, col: 5 },
+      ]);
+      expect(mineClearance.isMine(1, 1)).eq(true, "should be mine");
+      expect(mineClearance.isMine(5, 5)).eq(true, "should be mine");
+    });
+    it("setMine will also set cell value correctly, the value is the count of mines around", () => {
+      const mineClearance = new MineClearance({ row: 3, col: 3 });
+      (mineClearance as any).createEmptyMap();
+      mineClearance.setMine([
+        { row: 0, col: 0 },
+        { row: 1, col: 0 },
+        { row: 1, col: 1 },
+      ]);
+      // the result is
+      const snapshot = mineClearance.getSnapshot();
+      expect(snapshot).deep.eq([
+        [-1, 3, 1],
+        [-1, -1, 1],
+        [2, 2, 1],
+      ]);
+    });
   });
 });

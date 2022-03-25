@@ -20,9 +20,18 @@ export class MineClearance {
   public get map() {
     return this.map$.getValue();
   }
-  private createEmptyCell() {
+  public setMine(positions: { row: number; col: number }[]) {
+    // only set mine without update ohter cell vale;
+    const map = this.map;
+    for (let i = 0; i < positions.length; i++) {
+      const position = positions[i];
+      const mine = this.createCell(-1);
+      map[position.row][position.col].next(mine.getValue());
+    }
+  }
+  private createCell(value: number = 0) {
     return new BehaviorSubject({
-      value: 0,
+      value,
     });
   }
   private randomMime() {
@@ -51,6 +60,9 @@ export class MineClearance {
       this.map[r][c].getValue().value = -1; // mean mine
     }
   }
+  public isMine(row: number, col: number) {
+    return this.map[row][col].getValue().value === -1;
+  }
   private createEmptyMap() {
     const map: Cell[][] = [];
     // this.map$ = new BehaviorSubject
@@ -58,7 +70,7 @@ export class MineClearance {
     for (let rowIndex = 0; rowIndex < row; rowIndex++) {
       const row: Cell[] = [];
       for (let colIndex = 0; colIndex < col; colIndex++) {
-        const cell: Cell = this.createEmptyCell();
+        const cell: Cell = this.createCell();
         row.push(cell);
       }
       map.push(row);
@@ -68,5 +80,8 @@ export class MineClearance {
   public randomMap() {
     this.createEmptyMap();
     this.randomMime();
+  }
+  public getSnapshot() {
+    return this.map.map((rows) => rows.map((cell) => cell.getValue().value));
   }
 }
