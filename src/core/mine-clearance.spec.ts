@@ -100,11 +100,9 @@ describe("mineClearance", () => {
       ]);
       // the result is
       const snapshot = mineClearance.getSnapshot();
-      expect(snapshot).deep.eq([
-        [-1, 3, 1],
-        [-1, -1, 1],
-        [2, 2, 1],
-      ]);
+      expect(snapshot[0]).deep.eq([-1, 3, 1], "第一行");
+      expect(snapshot[1]).deep.eq([-1, -1, 1], "第二行");
+      expect(snapshot[2]).deep.eq([2, 2, 1], "第三行");
     });
   });
 });

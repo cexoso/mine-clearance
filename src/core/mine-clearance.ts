@@ -27,7 +27,36 @@ export class MineClearance {
       const position = positions[i];
       const mine = this.createCell(-1);
       map[position.row][position.col].next(mine.getValue());
+      this.increaseValueAroundMine(position.row, position.col);
     }
+  }
+  private increaseValueAroundMine(row: number, col: number) {
+    this.increaseValue(row - 1, col - 1);
+    this.increaseValue(row - 1, col);
+    this.increaseValue(row - 1, col + 1);
+    this.increaseValue(row, col - 1);
+    this.increaseValue(row, col + 1);
+    this.increaseValue(row + 1, col - 1);
+    this.increaseValue(row + 1, col);
+    this.increaseValue(row + 1, col + 1);
+  }
+  private increaseValue(row: number, col: number) {
+    const map = this.map;
+    const rowData = map[row];
+    if (rowData === undefined) {
+      return;
+    }
+    const cell = rowData[col];
+    if (cell === undefined) {
+      return;
+    }
+    const value = cell.getValue();
+    if (value.value === -1) {
+      // 是雷的话不处理
+      return;
+    }
+    value.value += 1;
+    cell.next(value);
   }
   private createCell(value: number = 0) {
     return new BehaviorSubject({
