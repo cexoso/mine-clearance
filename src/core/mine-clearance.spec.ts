@@ -21,16 +21,16 @@ const getMineCountBymap = (map: MineClearance["map"]) => {
 };
 describe("mineClearance", () => {
   it("method and property", () => {
-    const mineClearance = new MineClearance({ row: 10, col: 10 });
+    const mineClearance = new MineClearance({ row: 10, col: 20 });
     expect(mineClearance).has.property("randomMap");
     expect(mineClearance).has.property("createEmptyMap");
   });
   it("createEmptyMap will careate a map with value 0", () => {
-    const mineClearance = new MineClearance({ row: 10, col: 10 });
+    const mineClearance = new MineClearance({ row: 10, col: 20 });
     (mineClearance as any).createEmptyMap();
     const map = mineClearance.map;
     expect(map).lengthOf(10);
-    expect(map.every((row) => row.length === 10)).eq(
+    expect(map.every((row) => row.length === 20)).eq(
       true,
       "all rows length is 10"
     );
@@ -42,13 +42,13 @@ describe("mineClearance", () => {
     it("randomMine will random mineCount mine in map", () => {
       const mineClearance = new MineClearance({
         row: 10,
-        col: 10,
-        mineCount: 100, // for detect random conflict
+        col: 20,
+        mineCount: 200, // for detect random conflict
       });
       (mineClearance as any).createEmptyMap();
       (mineClearance as any).randomMime();
       const mineCount = getMineCountBymap(mineClearance.map);
-      expect(mineCount).eq(100, "should have 100 mine");
+      expect(mineCount).eq(200, "should have 200 mine");
     });
     it("mineCount too large", () => {
       const mineClearance = new MineClearance({

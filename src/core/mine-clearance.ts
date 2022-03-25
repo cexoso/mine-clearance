@@ -6,7 +6,7 @@ type Cell = BehaviorSubject<{
 
 export class MineClearance {
   public getConfig = () => {
-    const { row = 10, col = 10, mineCount = 9 } = this.opts;
+    const { row = 10, col = 20, mineCount = 9 } = this.opts;
     return {
       row,
       col,
@@ -46,8 +46,8 @@ export class MineClearance {
       const index = Math.floor(Math.random() * randomCache.length);
       const indexOfMine = randomCache[index];
       randomCache.splice(index, 1);
-      const r = Math.floor(indexOfMine / row);
-      const c = indexOfMine % row;
+      const r = Math.floor(indexOfMine / col);
+      const c = indexOfMine % col;
       this.map[r][c].getValue().value = -1; // mean mine
     }
   }
