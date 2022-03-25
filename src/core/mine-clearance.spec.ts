@@ -23,20 +23,47 @@ describe("mineClearance", () => {
     );
   });
   describe("randomMine", () => {
-    it("randomMine will random K mine in map", () => {
-      const mineClearance = new MineClearance({ row: 10, col: 10 });
+    const getCountBymap = (map: any[][]) => {
+      let mineCount = 0;
+      for (let rows of map) {
+        for (let cell of rows) {
+          mineCount += cell.value === -1 ? 1 : 0;
+        }
+      }
+      return mineCount;
+    };
+    it("randomMine will random mineCount mine in map", () => {
+      const mineClearance = new MineClearance({
+        row: 10,
+        col: 10,
+        mineCount: 100, // for detect random conflict
+      });
       (mineClearance as any).createEmptyMap();
-      // console.log('debugger', mineClearance.map)
-      const map: any[][] = (mineClearance as any).map;
-      expect(map).lengthOf(10);
-      expect(map.every((row) => row.length === 10)).eq(
-        true,
-        "all rows length is 10"
-      );
-      expect(map.every((row) => row.every((cell) => cell.value === 0))).to.eq(
-        true,
-        "createEmptyMap will careate a map that all values are 0"
-      );
+      (mineClearance as any).randomMime();
+      const mineCount = getCountBymap((mineClearance as any).map);
+      expect(mineCount).eq(100, "should have 100 mine");
+    });
+    it("mineCount too large", () => {
+      const mineClearance = new MineClearance({
+        row: 10,
+        col: 10,
+        mineCount: 101,
+      });
+      (mineClearance as any).createEmptyMap();
+      expect(() => {
+        (mineClearance as any).randomMime();
+      }).to.throw();
+    });
+    it("mineCount too small", () => {
+      const mineClearance = new MineClearance({
+        row: 10,
+        col: 10,
+        mineCount: -1,
+      });
+      (mineClearance as any).createEmptyMap();
+      expect(() => {
+        (mineClearance as any).randomMime();
+      }).to.throw();
     });
   });
 });
