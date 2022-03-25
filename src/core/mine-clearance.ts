@@ -1,6 +1,9 @@
-type Cell = {
+import { BehaviorSubject } from "rxjs";
+
+type Cell = BehaviorSubject<{
   value: number; // -1 mean mien, 0~8 mean how much mines around the cell
-};
+}>;
+
 export class MineClearance {
   public getConfig = () => {
     const { row = 10, col = 10, mineCount = 9 } = this.opts;
@@ -10,14 +13,17 @@ export class MineClearance {
       mineCount,
     };
   };
-  constructor(
-    public opts: { row?: number; col?: number; mineCount?: number }
-  ) {}
-  private map: Cell[][] = [];
+  constructor(public opts: { row?: number; col?: number; mineCount?: number }) {
+    this.map$ = this.createEmptyMap();
+  }
+  public map$: BehaviorSubject<Cell[][]>;
+  public get map() {
+    return this.map$.getValue();
+  }
   private createEmptyCell() {
-    return {
+    return new BehaviorSubject({
       value: 0,
-    };
+    });
   }
   private randomMime() {
     const { row, col, mineCount } = this.getConfig();
@@ -42,11 +48,12 @@ export class MineClearance {
       randomCache.splice(index, 1);
       const r = Math.floor(indexOfMine / row);
       const c = indexOfMine % row;
-      this.map[r][c]!.value = -1; // mean mine
+      this.map[r][c].getValue().value = -1; // mean mine
     }
   }
   private createEmptyMap() {
-    this.map = [];
+    const map: Cell[][] = [];
+    // this.map$ = new BehaviorSubject
     const { row, col } = this.getConfig();
     for (let rowIndex = 0; rowIndex < row; rowIndex++) {
       const row: Cell[] = [];
@@ -54,8 +61,9 @@ export class MineClearance {
         const cell: Cell = this.createEmptyCell();
         row.push(cell);
       }
-      this.map.push(row);
+      map.push(row);
     }
+    return new BehaviorSubject(map);
   }
   public randomMap() {
     this.createEmptyMap();
