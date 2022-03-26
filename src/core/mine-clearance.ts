@@ -15,6 +15,7 @@ export const flattenMap = <T>(
 export type Cell = BehaviorSubject<{
   value: number; // -1 mean mien, 0~8 mean how much mines around the cell
   visible: boolean;
+  hasFlag: boolean;
 }>;
 
 export class MineClearance {
@@ -71,7 +72,8 @@ export class MineClearance {
     return new BehaviorSubject({
       value,
       visible: false,
-    });
+      hasFlag: false,
+    };
   }
   private randomMime() {
     const { row, col, mineCount } = this.getConfig();
@@ -184,5 +186,11 @@ export class MineClearance {
       });
     }
     return true;
+  }
+  public setFlag(row: number, col: number) {
+    const cell = this.map[row][col];
+    const value = cell.getValue();
+    value.hasFlag = !value.hasFlag;
+    cell.next(value);
   }
 }

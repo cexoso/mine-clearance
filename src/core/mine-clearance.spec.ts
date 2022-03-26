@@ -262,4 +262,14 @@ describe("mineClearance", () => {
     expect(visibleSnapshot[3]).deep.eq([false, false, false, false, false]);
     expect(visibleSnapshot[4]).deep.eq([false, false, false, false, false]);
   });
+  it("setFlame method can mark the cell maybe a mine", () => {
+    const mineClearance = new MineClearance({
+      row: 5,
+      col: 5,
+    });
+    mineClearance.setFlag(0, 0);
+    expect(mineClearance.map[0][0].getValue().hasFlag).eq(true);
+    mineClearance.setFlag(0, 0);
+    expect(mineClearance.map[0][0].getValue().hasFlag).eq(false);
+  });
 });
