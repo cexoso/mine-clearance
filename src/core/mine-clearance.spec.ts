@@ -64,6 +64,19 @@ describe("mineClearance", () => {
         (mineClearance as any).randomMime();
       }).to.throw();
     });
+    it("randomMine again also work", () => {
+      const mineClearance = new MineClearance({
+        row: 10,
+        col: 20,
+        mineCount: 5, // for detect random conflict
+      });
+      mineClearance.randomMap();
+      mineClearance.cleanCell(0, 0);
+      mineClearance.setFlag(0, 1);
+      mineClearance.randomMap();
+      expect(mineClearance.map[0][1].getValue().hasFlag).eq(false);
+      expect(mineClearance.map[0][0].getValue().visible).eq(false);
+    });
   });
 
   describe("setMine", () => {

@@ -41,7 +41,7 @@ export class MineClearance {
     for (let i = 0; i < positions.length; i++) {
       const position = positions[i];
       const mine = this.createCell(-1);
-      map[position.row][position.col].next(mine.getValue());
+      map[position.row][position.col].next(mine);
       this.increaseValueAroundMine(position.row, position.col);
     }
   }
@@ -69,7 +69,7 @@ export class MineClearance {
     cell.next(value);
   }
   private createCell(value: number = 0) {
-    return new BehaviorSubject({
+    return {
       value,
       visible: false,
       hasFlag: false,
@@ -112,15 +112,20 @@ export class MineClearance {
     for (let rowIndex = 0; rowIndex < row; rowIndex++) {
       const row: Cell[] = [];
       for (let colIndex = 0; colIndex < col; colIndex++) {
-        const cell: Cell = this.createCell();
+        const cell: Cell = new BehaviorSubject(this.createCell());
         row.push(cell);
       }
       map.push(row);
     }
     return new BehaviorSubject(map);
   }
+  private reset() {
+    flattenMap(this.map, (cell) => {
+      cell.next(this.createCell());
+    });
+  }
   public randomMap() {
-    this.createEmptyMap();
+    this.reset();
     this.randomMime();
   }
   public getSnapshot() {
