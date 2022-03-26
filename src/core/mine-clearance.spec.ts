@@ -9,6 +9,20 @@ const getMineCountBymap = (map: MineClearance["map"]) => {
   }
   return mineCount;
 };
+
+const flattenMap = <T>(
+  table: T[][],
+  callback: (v: T, row: number, col: number) => void
+) => {
+  for (let row = 0; row < table.length; row++) {
+    const rowData = table[row];
+    for (let col = 0; col < rowData.length; col++) {
+      const value = rowData[col];
+      callback(value, row, col);
+    }
+  }
+};
+
 describe("mineClearance", () => {
   it("method and property", () => {
     const mineClearance = new MineClearance({ row: 10, col: 20 });
@@ -28,6 +42,7 @@ describe("mineClearance", () => {
       map.every((row) => row.every((cell) => cell.getValue().value === 0))
     ).to.eq(true, "createEmptyMap will careate a map that all values are 0");
   });
+
   describe("randomMine", () => {
     it("randomMine will random mineCount mine in map", () => {
       const mineClearance = new MineClearance({
@@ -95,6 +110,7 @@ describe("mineClearance", () => {
       expect(snapshot[2]).deep.eq([2, 2, 1], "第三行");
     });
   });
+
   describe("randomMap should generate a map correctly", () => {
     const mineClearance = new MineClearance({
       row: 10,
@@ -149,5 +165,114 @@ describe("mineClearance", () => {
         }
       }
     });
+  });
+
+  describe("randomMap should generate a map correctly", () => {
+    it("cleanCell on a empty cell", () => {
+      const mineClearance = new MineClearance({
+        row: 5,
+        col: 5,
+      });
+
+      mineClearance.setMine([
+        { row: 1, col: 1 },
+        { row: 1, col: 2 },
+        { row: 2, col: 1 },
+      ]);
+
+      // 1, 2, 2, 1, 0
+      // 2,-1,-1, 1, 0
+      // 2,-1, 3, 1, 0
+      // 1, 1, 1, 0, 0
+      // 0, 0, 0, 0, 0
+
+      flattenMap(mineClearance.getVisibleSnapshot(), (value) => {
+        assert(value === false, "all cell are hidden");
+      });
+      mineClearance.cleanCell(0, 4);
+      const visibleSnapshot = mineClearance.getVisibleSnapshot();
+      expect(visibleSnapshot[0]).deep.eq(
+        [false, false, false, true, true],
+        "0 row"
+      );
+      expect(visibleSnapshot[1]).deep.eq(
+        [false, false, false, true, true],
+        "1 row"
+      );
+      expect(visibleSnapshot[2]).deep.eq(
+        [false, false, true, true, true],
+        "2 row"
+      );
+      expect(visibleSnapshot[3]).deep.eq(
+        [true, true, true, true, true],
+        "3 row"
+      );
+      expect(visibleSnapshot[4]).deep.eq(
+        [true, true, true, true, true],
+        "4 row"
+      );
+    });
+  });
+
+  it("cleanCell on a mine cell", () => {
+    const mineClearance = new MineClearance({
+      row: 5,
+      col: 5,
+    });
+
+    mineClearance.setMine([
+      { row: 1, col: 1 },
+      { row: 1, col: 2 },
+      { row: 2, col: 1 },
+    ]);
+
+    // 1, 2, 2, 1, 0
+    // 2,-1,-1, 1, 0
+    // 2,-1, 3, 1, 0
+    // 1, 1, 1, 0, 0
+    // 0, 0, 0, 0, 0
+
+    flattenMap(mineClearance.getVisibleSnapshot(), (value) => {
+      assert(value === false, "all cell are hidden");
+    });
+    let state: string = "";
+    mineClearance.state$.subscribe((nextEvent) => {
+      state = nextEvent;
+    });
+    expect(mineClearance.cleanCell(1, 1)).to.eq(
+      false,
+      "false mean the cell is a mine"
+    );
+    expect(state).to.eq("fail");
+  });
+
+  it("cleanCell on a empty cell with mine around", () => {
+    const mineClearance = new MineClearance({
+      row: 5,
+      col: 5,
+    });
+
+    mineClearance.setMine([
+      { row: 1, col: 1 },
+      { row: 1, col: 2 },
+      { row: 2, col: 1 },
+    ]);
+
+    // 1, 2, 2, 1, 0
+    // 2,-1,-1, 1, 0
+    // 2,-1, 3, 1, 0
+    // 1, 1, 1, 0, 0
+    // 0, 0, 0, 0, 0
+
+    flattenMap(mineClearance.getVisibleSnapshot(), (value) => {
+      assert(value === false, "all cell are hidden");
+    });
+    mineClearance.cleanCell(0, 0);
+    const visibleSnapshot = mineClearance.getVisibleSnapshot();
+    expect(visibleSnapshot[0]).deep.eq([true, false, false, false, false]);
+    expect(visibleSnapshot[1]).deep.eq([false, false, false, false, false]);
+    expect(visibleSnapshot[2]).deep.eq([false, false, false, false, false]);
+    expect(visibleSnapshot[3]).deep.eq([false, false, false, false, false]);
+    expect(visibleSnapshot[4]).deep.eq([false, false, false, false, false]);
   });
 });

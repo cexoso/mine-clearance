@@ -2,9 +2,11 @@ import { BehaviorSubject } from "rxjs";
 
 type Cell = BehaviorSubject<{
   value: number; // -1 mean mien, 0~8 mean how much mines around the cell
+  visible: boolean;
 }>;
 
 export class MineClearance {
+  public state$ = new BehaviorSubject<"fail" | "success" | "idle">("idle");
   public getConfig = () => {
     const { row = 10, col = 20, mineCount = 9 } = this.opts;
     return {
@@ -56,6 +58,7 @@ export class MineClearance {
   private createCell(value: number = 0) {
     return new BehaviorSubject({
       value,
+      visible: false,
     });
   }
   private randomMime() {
@@ -109,6 +112,9 @@ export class MineClearance {
   public getSnapshot() {
     return this.map.map((rows) => rows.map((cell) => cell.getValue().value));
   }
+  public getVisibleSnapshot() {
+    return this.map.map((rows) => rows.map((cell) => cell.getValue().visible));
+  }
   public getAroundValidCell(row: number, col: number) {
     const { row: ConfigRow, col: ConfigCol } = this.getConfig();
     const aroundCell: [number, number][] = [
@@ -124,5 +130,37 @@ export class MineClearance {
     return aroundCell.filter(
       ([r, c]) => 0 <= r && r < ConfigRow && 0 <= c && c < ConfigCol
     );
+  }
+  public cleanCell(row: number, col: number) {
+    const map = this.map;
+    const value = map[row][col].getValue();
+    if (value.visible) {
+      return;
+    }
+    const result = this.expandAroundCell(row, col);
+    if (result) {
+      return;
+    }
+    this.state$.next("fail");
+    return false;
+  }
+  private expandAroundCell(row: number, col: number) {
+    const map = this.map;
+    const cell = map[row][col];
+    const value = cell.getValue();
+    if (value.value === -1) {
+      return false;
+    }
+    if (value.visible) {
+      return true;
+    }
+    value.visible = true;
+    cell.next(value);
+    if (value.value === 0) {
+      this.getAroundValidCell(row, col).forEach(([r, c]) => {
+        this.expandAroundCell(r, c);
+      });
+    }
+    return true;
   }
 }
