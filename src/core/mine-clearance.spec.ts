@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { MineClearance } from "./mine-clearance";
+import { MineClearance, flattenMap } from "./mine-clearance";
 const getMineCountBymap = (map: MineClearance["map"]) => {
   let mineCount = 0;
   for (let rows of map) {
@@ -8,19 +8,6 @@ const getMineCountBymap = (map: MineClearance["map"]) => {
     }
   }
   return mineCount;
-};
-
-const flattenMap = <T>(
-  table: T[][],
-  callback: (v: T, row: number, col: number) => void
-) => {
-  for (let row = 0; row < table.length; row++) {
-    const rowData = table[row];
-    for (let col = 0; col < rowData.length; col++) {
-      const value = rowData[col];
-      callback(value, row, col);
-    }
-  }
 };
 
 describe("mineClearance", () => {

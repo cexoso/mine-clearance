@@ -1,6 +1,18 @@
 import { BehaviorSubject } from "rxjs";
 
-type Cell = BehaviorSubject<{
+export const flattenMap = <T>(
+  table: T[][],
+  callback: (v: T, row: number, col: number) => void
+) => {
+  for (let row = 0; row < table.length; row++) {
+    const rowData = table[row];
+    for (let col = 0; col < rowData.length; col++) {
+      const value = rowData[col];
+      callback(value, row, col);
+    }
+  }
+};
+export type Cell = BehaviorSubject<{
   value: number; // -1 mean mien, 0~8 mean how much mines around the cell
   visible: boolean;
 }>;
@@ -142,8 +154,18 @@ export class MineClearance {
       return;
     }
     this.state$.next("fail");
+    this.showAllCell();
     return false;
   }
+
+  showAllCell() {
+    const map = this.map;
+    flattenMap(map, (cell) => {
+      cell.value.visible = true;
+      cell.next(cell.value);
+    });
+  }
+
   private expandAroundCell(row: number, col: number) {
     const map = this.map;
     const cell = map[row][col];
