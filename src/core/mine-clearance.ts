@@ -31,14 +31,9 @@ export class MineClearance {
     }
   }
   private increaseValueAroundMine(row: number, col: number) {
-    this.increaseValue(row - 1, col - 1);
-    this.increaseValue(row - 1, col);
-    this.increaseValue(row - 1, col + 1);
-    this.increaseValue(row, col - 1);
-    this.increaseValue(row, col + 1);
-    this.increaseValue(row + 1, col - 1);
-    this.increaseValue(row + 1, col);
-    this.increaseValue(row + 1, col + 1);
+    this.getAroundValidCell(row, col).forEach(([r, c]) =>
+      this.increaseValue(r, c)
+    );
   }
   private increaseValue(row: number, col: number) {
     const map = this.map;
@@ -113,5 +108,21 @@ export class MineClearance {
   }
   public getSnapshot() {
     return this.map.map((rows) => rows.map((cell) => cell.getValue().value));
+  }
+  public getAroundValidCell(row: number, col: number) {
+    const { row: ConfigRow, col: ConfigCol } = this.getConfig();
+    const aroundCell: [number, number][] = [
+      [row - 1, col - 1],
+      [row - 1, col],
+      [row - 1, col + 1],
+      [row, col - 1],
+      [row, col + 1],
+      [row + 1, col - 1],
+      [row + 1, col],
+      [row + 1, col + 1],
+    ];
+    return aroundCell.filter(
+      ([r, c]) => 0 <= r && r < ConfigRow && 0 <= c && c < ConfigCol
+    );
   }
 }
