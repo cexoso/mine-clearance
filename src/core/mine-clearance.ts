@@ -19,7 +19,9 @@ export type Cell = BehaviorSubject<{
 }>;
 
 export class MineClearance {
-  public state$ = new BehaviorSubject<"fail" | "success" | "idle">("idle");
+  public state$ = new BehaviorSubject<"fail" | "success" | "idle" | "begin">(
+    "idle"
+  );
   public getConfig = () => {
     const { row = 10, col = 20, mineCount = 9 } = this.opts;
     return {
@@ -28,7 +30,10 @@ export class MineClearance {
       mineCount,
     };
   };
+  private allCellCount = 0;
   constructor(public opts: { row?: number; col?: number; mineCount?: number }) {
+    const { row, col, mineCount } = this.getConfig();
+    this.allCellCount = row * col - mineCount;
     this.map$ = this.createEmptyMap();
   }
   public map$: BehaviorSubject<Cell[][]>;
@@ -127,6 +132,7 @@ export class MineClearance {
   public randomMap() {
     this.reset();
     this.randomMime();
+    this.state$.next("begin");
   }
   public getSnapshot() {
     return this.map.map((rows) => rows.map((cell) => cell.getValue().value));
@@ -158,21 +164,26 @@ export class MineClearance {
     }
     const result = this.expandAroundCell(row, col);
     if (result) {
+      this.checkIsSuccess();
       return;
     }
     this.state$.next("fail");
     this.showAllCell();
     return false;
   }
-
-  showAllCell() {
+  private checkIsSuccess() {
+    if (this.visibleCount === this.allCellCount) {
+      this.state$.next("success");
+    }
+  }
+  private showAllCell() {
     const map = this.map;
     flattenMap(map, (cell) => {
       cell.value.visible = true;
       cell.next(cell.value);
     });
   }
-
+  private visibleCount = 0;
   private expandAroundCell(row: number, col: number) {
     const map = this.map;
     const cell = map[row][col];
@@ -184,6 +195,7 @@ export class MineClearance {
       return true;
     }
     value.visible = true;
+    this.visibleCount += 1;
     cell.next(value);
     if (value.value === 0) {
       this.getAroundValidCell(row, col).forEach(([r, c]) => {

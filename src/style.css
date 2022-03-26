@@ -33,3 +33,20 @@ body {
 .row {
   display: flex;
 }
+.tips {
+  color: #fff;
+  margin-top: 10px;
+  text-align: left;
+}
+
+.start_button {
+  align-items: left;
+  margin-top: 50px;
+  height: 40px;
+  width: 120px;
+}
+
+.status {
+  margin-top: 5px;
+  color: #fff;
+}
