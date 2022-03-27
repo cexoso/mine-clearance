@@ -1,44 +1,15 @@
 import "./style.css";
-import { MineClearance, Cell } from "./core/mine-clearance";
+import { MineClearance } from "./core/mine-clearance";
+import { createCanvasContainer } from "./canvas";
+import { createDom } from './dom';
 const mineClearance = new MineClearance({ row: 10, col: 10, mineCount: 9 });
 mineClearance.randomMap();
 const app = document.querySelector<HTMLDivElement>("#app")!;
-const createCell = (cell: Cell, row: number, col: number) => {
-  const div = document.createElement("div");
-  div.addEventListener("click", (event) => {
-    if (event.metaKey) {
-      mineClearance.setFlag(row, col);
-    } else {
-      mineClearance.cleanCell(row, col);
-    }
-  });
-  cell.subscribe((value) => {
-    if (value.visible) {
-      div.innerText = value.value === -1 ? "*" : String(value.value);
-    } else if (value.hasFlag) {
-      div.innerText = "F";
-    } else {
-      div.innerText = "";
-    }
-    const className = `cell ${value.visible ? "visible" : "hidden"} `;
-    div.className = className;
-  });
-  return div;
-};
-mineClearance.map$.subscribe((map) => {
-  const flagment = document.createDocumentFragment();
-  for (let row = 0; row < map.length; row++) {
-    const rowData = map[row];
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "row";
-    for (let col = 0; col < map.length; col++) {
-      const cell = rowData[col];
-      rowDiv.append(createCell(cell, row, col));
-    }
-    flagment.append(rowDiv);
-  }
-  app.append(flagment);
-});
+const container = document.createElement("div");
+container.className = "container";
+container.append(createCanvasContainer());
+container.append(createDom(mineClearance));
+app.append(container);
 
 const div = document.createElement("div");
 div.className = "tips";
