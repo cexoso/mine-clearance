@@ -7,7 +7,7 @@ mineClearance.randomMap();
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const container = document.createElement("div");
 container.className = "container";
-container.append(createCanvasContainer());
+container.append(createCanvasContainer(mineClearance));
 container.append(createDom(mineClearance));
 app.append(container);
 
